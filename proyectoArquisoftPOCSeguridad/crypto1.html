@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mermaid Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        .mermaid {
+            font-family: 'trebuchet ms', verdana, arial;
+        }
+    </style>
+</head>
+<body>
+    <div class="mermaid">
+        sequenceDiagram
+        title: Asymmetric Signing with SHA-256 Hashing (KMS)
+        participant Doctor
+        participant AWS_KMS
+        participant Verifier
+    
+        Note over Doctor: Signing Process
+        Doctor->>+AWS_KMS: 1. sign(KeyId, Document)
+        Note right of Doctor: Document: "Patient record v1"
+        Doctor->>Doctor: 2. SHA-256(Document)
+        Doctor->>Doctor: Digest: 3a7b...f2c1
+        AWS_KMS->>AWS_KMS: 3. Sign digest with private key
+        AWS_KMS-->>-Doctor: 4. Signature (PSS encoded)
+    
+        Note over Verifier: Verification Process
+        Verifier->>+AWS_KMS: 5. verify(KeyId, Document, Signature)
+        Verifier->>Verifier: 6. SHA-256(Document)
+        Verifier->>Verifier: Digest: 3a7b...f2c1 (must match)
+        AWS_KMS->>AWS_KMS: 7. Decrypt with public key
+        alt Hashes match
+            AWS_KMS-->>Verifier: 8. ✅ Valid (Non-repudiation proof)
+        else Hashes differ
+            AWS_KMS-->>Verifier: 8. ❌ Invalid (Tampered)
+        end
+        </div>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            }
+        });
+    </script>
+</body>
+</html>

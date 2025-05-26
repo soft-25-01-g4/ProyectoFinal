@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mermaid Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        .mermaid {
+            font-family: 'trebuchet ms', verdana, arial;
+        }
+    </style>
+</head>
+<body>
+    <div class="mermaid">
+        sequenceDiagram
+    %% Test Case 1: Normal Sign/Verify
+    participant DoctorA
+    participant KMS
+    DoctorA->>KMS: sign(DOCUMENT_A, Key_A)
+    KMS-->>DoctorA: Signature
+    DoctorA->>KMS: verify(DOCUMENT_A, Signature, Key_A)
+    KMS-->>DoctorA: ✅ Valid (Non-repudiation proof: Only DoctorA could sign)
+
+    %% Test Case 2: Unauthorized Attempt
+    participant DoctorB
+    DoctorB->>KMS: sign(DOCUMENT_B, Key_A)
+    KMS-->>DoctorB: ❌ AccessDenied (IAM blocks DoctorB from using DoctorA's key)
+
+    %% Test Case 3: Tamper Detection
+    participant Verifier
+    DoctorA->>KMS: sign(DOCUMENT_A, Key_A)
+    KMS-->>DoctorA: Signature
+    Verifier->>KMS: verify(DOCUMENT_A*, Signature, Key_A)
+    KMS-->>Verifier: ❌ Invalid (Tampering detected)
+
+    %% Test Case 4: Sequential Updates
+    DoctorA->>KMS: sign(DOCUMENT_A, Key_A)
+    DoctorB->>KMS: sign(DOCUMENT_B, Key_B)
+    KMS-->>DoctorA: Signature_A
+    KMS-->>DoctorB: Signature_B
+    Note right of KMS: Independent non-repudiation proofs<br>for each doctor's actions
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            }
+        });
+    </script>
+</body>
+</html>
